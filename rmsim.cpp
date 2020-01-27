@@ -34,7 +34,6 @@ class simulator{
 	void getregs(){
 		std::string spec;
 		getline(std::cin, spec); 
-		
 		std::string currnum = "";
 
 		for (int i = 0; i < spec.length(); i++){
@@ -57,11 +56,102 @@ class simulator{
 	void getinstructions(){
 		std::string currinst = "";
 		while(getline(std::cin, currinst)){
+			//Split the line up
+			std::vector<std::string> splitinstr;
+			std::string curr = "";
+			for (int i = 0; i < currinst.length(); i++){
+				if (isalnum(currinst.at(i))){
+					curr += currinst.at(i);
+				}
+				else{
+					if(curr.length() > 0){
+						splitinstr.push_back(curr);
+					}
+					curr = "";
+				}
+			}
+
+			if(curr.length() > 0){
+				splitinstr.push_back(curr);
+			}
+			if (splitinstr.size() == 0){
+				break; 
+			}
 			
+			if (splitinstr.size() == 4){
+				instructions.push_back(instruction(splitinstr[0], decjz, std::stoi(splitinstr[2].substr(1)), splitinstr[3]));
+			}
+			else if (splitinstr.size() == 2){
+				instructions.push_back(instruction("", inc, std::stoi(splitinstr[1].substr(1)), ""));
+			}
+			else{
+				if (splitinstr[1] == "inc"){
+					instructions.push_back(instruction(splitinstr[0], inc, std::stoi(splitinstr[2].substr(1)), ""));
+				}
+				else{
+					instructions.push_back(instruction("", decjz, std::stoi(splitinstr[1].substr(1)), splitinstr[2]));
+				}
+			}
+
 		}
 	}
-	void run(){
 
+	void extendregs(unsigned long long reg){
+		//If the register being asked for doesn't exist
+		if (reg >= registers.size()){
+			int currsize = registers.size();
+			registers.resize(reg + 1); //Resize the registers 
+			for (int i = currsize; i <= reg; i++){ //Init the values
+				registers[i] = 0;
+			}
+		}
+	}
+
+	void run(){
+		while(true){
+			if (currinst >= instructions.size()){
+				break;
+			}
+
+			//Ensure that the register exists
+			extendregs(instructions[currinst].targreg);
+
+			if (instructions[currinst].type == inc){
+				registers[instructions[currinst].targreg] += 1; 
+				currinst += 1;
+			}
+			else{
+				if (registers[instructions[currinst].targreg] == 0){
+					//Need to jump
+					if (instructions[currinst].jumplabel == "HALT"){
+						return;
+					}
+					else{
+						int found = 0; 
+
+						for (int i = 0; i < instructions.size(); i++){
+							if (instructions[i].label == instructions[currinst].jumplabel){
+								found += 1; 
+								currinst = i; 
+								break;
+							}
+						}
+
+						if (found != 1){
+							std::cout << "Label: " << instructions[currinst].jumplabel << "invalid!" << '\n'; 
+							return; 
+						}
+
+					}
+				}
+				else{
+					registers[instructions[currinst].targreg] += -1;
+					currinst += 1;
+				}
+			}
+
+			
+		}
 	}
 
 	void printregs(){
