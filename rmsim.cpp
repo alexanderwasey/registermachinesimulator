@@ -27,9 +27,11 @@ class simulator{
 	std::vector<unsigned long long int> registers; 
 	std::vector<instruction> instructions;
 	int currinst;
+	bool trace; 
 
 	simulator(){
 		currinst = 0;
+		trace = false;
 	}
 
 	void getregs(){
@@ -124,6 +126,11 @@ class simulator{
 				break;
 			}
 
+			if(trace){
+				printregs();
+				//std::cout << instructions[currinst].label << "-" << instructions[currinst].type << "-r" << instructions[currinst].targreg << "-" << instructions[currinst].jumplabel << '\n'; 
+			}
+
 			//Ensure that the register exists
 			extendregs(instructions[currinst].targreg);
 
@@ -160,8 +167,6 @@ class simulator{
 					currinst += 1;
 				}
 			}
-
-			
 		}
 	}
 
@@ -174,8 +179,15 @@ class simulator{
 	}
 };
 
-int main(){
+int main(int argc, char* argv[]){
 	simulator sim;
+
+	if (argc > 1){
+		if (std::string(argv[1]) == "-t"){
+			sim.trace = true;
+		}
+	}
+
 	sim.getregs(); 
 
 	sim.getinstructions(); 
@@ -183,4 +195,6 @@ int main(){
 	sim.run();
 
 	sim.printregs();
+
+	return 0; 
 }
