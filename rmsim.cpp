@@ -1,6 +1,7 @@
 #include <vector> 
 #include <string> 
 #include <iostream> 
+#include <regex>
 
 enum instrtype{
 	inc, decjz
@@ -33,7 +34,16 @@ class simulator{
 
 	void getregs(){
 		std::string spec;
-		getline(std::cin, spec); 
+		
+		
+		while (true){
+			getline(std::cin, spec); 
+			//Allow the first line to be a comment
+			if (spec[0] != '#'){
+				break;
+			}
+		}
+		
 		std::string currnum = "";
 
 		for (int i = 0; i < spec.length(); i++){
@@ -56,43 +66,44 @@ class simulator{
 	void getinstructions(){
 		std::string currinst = "";
 		while(getline(std::cin, currinst)){
-			//Split the line up
-			std::vector<std::string> splitinstr;
-			std::string curr = "";
-			for (int i = 0; i < currinst.length(); i++){
-				if (isalnum(currinst.at(i))){
-					curr += currinst.at(i);
-				}
-				else{
-					if(curr.length() > 0){
-						splitinstr.push_back(curr);
+			if (currinst[0] != '#'){
+				//Split the line up
+				std::vector<std::string> splitinstr;
+				std::string curr = "";
+				for (int i = 0; i < currinst.length(); i++){
+					if (isalnum(currinst.at(i))){
+						curr += currinst.at(i);
 					}
-					curr = "";
+					else{
+						if(curr.length() > 0){
+							splitinstr.push_back(curr);
+						}
+						curr = "";
+					}
 				}
-			}
 
-			if(curr.length() > 0){
-				splitinstr.push_back(curr);
-			}
-			if (splitinstr.size() == 0){
-				break; 
-			}
-			
-			if (splitinstr.size() == 4){
-				instructions.push_back(instruction(splitinstr[0], decjz, std::stoi(splitinstr[2].substr(1)), splitinstr[3]));
-			}
-			else if (splitinstr.size() == 2){
-				instructions.push_back(instruction("", inc, std::stoi(splitinstr[1].substr(1)), ""));
-			}
-			else{
-				if (splitinstr[1] == "inc"){
-					instructions.push_back(instruction(splitinstr[0], inc, std::stoi(splitinstr[2].substr(1)), ""));
+				if(curr.length() > 0){
+					splitinstr.push_back(curr);
+				}
+				if (splitinstr.size() == 0){
+					break; 
+				}
+				
+				if (splitinstr.size() == 4){
+					instructions.push_back(instruction(splitinstr[0], decjz, std::stoi(splitinstr[2].substr(1)), splitinstr[3]));
+				}
+				else if (splitinstr.size() == 2){
+					instructions.push_back(instruction("", inc, std::stoi(splitinstr[1].substr(1)), ""));
 				}
 				else{
-					instructions.push_back(instruction("", decjz, std::stoi(splitinstr[1].substr(1)), splitinstr[2]));
+					if (splitinstr[1] == "inc"){
+						instructions.push_back(instruction(splitinstr[0], inc, std::stoi(splitinstr[2].substr(1)), ""));
+					}
+					else{
+						instructions.push_back(instruction("", decjz, std::stoi(splitinstr[1].substr(1)), splitinstr[2]));
+					}
 				}
 			}
-
 		}
 	}
 
