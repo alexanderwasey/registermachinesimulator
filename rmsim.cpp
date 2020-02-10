@@ -34,7 +34,7 @@ class simulator{
 		trace = false;
 	}
 
-	void getregs(){
+	bool getregs(){
 		std::string spec;
 		
 		
@@ -46,6 +46,12 @@ class simulator{
 			}
 		}
 		
+		//Poorly thought out attempt at a regex
+		std::regex checkregs ("registers[[:blank:]+[:d:]+]*[[:blank:]]*");		
+		if (!std::regex_match(spec, checkregs)){
+			std::cout << "Registers don't match!\n";
+			return false; 
+		}
 		std::string currnum = "";
 
 		for (int i = 0; i < spec.length(); i++){
@@ -64,16 +70,30 @@ class simulator{
 		if (currnum.length() > 0){
 			registers.push_back(std::stoi(currnum));
 		}
+
+		return true;
 	}
-	void getinstructions(){
+	bool getinstructions(){
 		std::string currinst = "";
+
 		while(getline(std::cin, currinst)){
 			if (currinst[0] != '#'){
+
+				
+				//Poorly thought out attempt at doing a regex
+				std::regex checkinstrs("(([[:alpha:]][[:w:]]*([[:blank:]]*):)?)([[:blank:]]*)((inc[[:blank:]+]([[:blank:]]*)r[[:d:]]+)|(decjz[[:blank:]+]([[:blank:]]*)r[[:d:]]+[[:blank:]+]([[:blank:]]*)[[:alpha:]][[:w:]]*))([[:blank:]]*)");
+
+				if (!std::regex_match(currinst, checkinstrs)){
+					std::cout << "Instruction invalid\n";
+					std::cout << currinst << '\n';
+					return false;
+				} 
+
 				//Split the line up
 				std::vector<std::string> splitinstr;
 				std::string curr = "";
 				for (int i = 0; i < currinst.length(); i++){
-					if (isalnum(currinst.at(i))){
+					if (isalnum(currinst.at(i))){ //We split on whitespace
 						curr += currinst.at(i);
 					}
 					else{
@@ -91,22 +111,23 @@ class simulator{
 					break; 
 				}
 				
-				if (splitinstr.size() == 4){
+				if (splitinstr.size() == 4){ //Must be a decjz with a label
 					instructions.push_back(instruction(splitinstr[0], decjz, std::stoi(splitinstr[2].substr(1)), splitinstr[3]));
 				}
-				else if (splitinstr.size() == 2){
+				else if (splitinstr.size() == 2){ //Must be an increment without a label
 					instructions.push_back(instruction("", inc, std::stoi(splitinstr[1].substr(1)), ""));
 				}
 				else{
-					if (splitinstr[1] == "inc"){
+					if (splitinstr[1] == "inc"){ //In the case we have an increment with a label
 						instructions.push_back(instruction(splitinstr[0], inc, std::stoi(splitinstr[2].substr(1)), ""));
 					}
-					else{
+					else{ //In this case we have a decjz with no label
 						instructions.push_back(instruction("", decjz, std::stoi(splitinstr[1].substr(1)), splitinstr[2]));
 					}
 				}
 			}
 		}
+		return true;
 	}
 
 	void extendregs(unsigned long long reg){
@@ -188,9 +209,15 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	sim.getregs(); 
 
-	sim.getinstructions(); 
+	//Tried to get some regex working to do some checking, inevitably didn't work
+	if(!sim.getregs()){
+		return 1; 
+	}
+
+	if(!sim.getinstructions()) {
+		return 1;
+	}
 
 	sim.run();
 
