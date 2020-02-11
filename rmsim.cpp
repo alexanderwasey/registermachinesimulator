@@ -77,11 +77,9 @@ class simulator{
 		std::string currinst = "";
 
 		while(getline(std::cin, currinst)){
-			if (currinst[0] != '#'){
-
-				
+			if ((currinst[0] != '#') && (currinst.length() > 0)){
 				//Poorly thought out attempt at doing a regex
-				std::regex checkinstrs("(([[:alpha:]][[:w:]]*([[:blank:]]*):)?)([[:blank:]]*)((inc[[:blank:]+]([[:blank:]]*)r[[:d:]]+)|(decjz[[:blank:]+]([[:blank:]]*)r[[:d:]]+[[:blank:]+]([[:blank:]]*)[[:alpha:]][[:w:]]*))([[:blank:]]*)");
+				std::regex checkinstrs("(([[:w:]]*[[:alpha:]][[:w:]]*([[:blank:]]*):)?)([[:blank:]]*)((inc[[:blank:]+]([[:blank:]]*)r[[:d:]]+)|(decjz[[:blank:]+]([[:blank:]]*)r[[:d:]]+[[:blank:]+]([[:blank:]]*)[[:alpha:]][[:w:]]*))([[:blank:]]*)");
 
 				if (!std::regex_match(currinst, checkinstrs)){
 					std::cout << "Instruction invalid\n";
