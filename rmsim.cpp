@@ -46,14 +46,15 @@ class simulator{
 			}
 		}
 		
-		//Poorly thought out attempt at a regex
-		std::regex checkregs ("registers[[:blank:]+[:d:]+]*[[:blank:]]*");		
+		//Regex to ensure the registers line is properly formatted. 
+		std::regex checkregs ("[[:blank:]]*registers[[:blank:]+[:d:]+]*[[:blank:]]*");		
 		if (!std::regex_match(spec, checkregs)){
-			std::cout << "Registers don't match!\n";
+			std::cout << "Registers invalid!\n";
 			return false; 
 		}
 		std::string currnum = "";
 
+		//Pull out the numbers and init the registers. We have already checked it is valid so can throw out any other characters
 		for (int i = 0; i < spec.length(); i++){
 			char a = spec.at(i); 
 			if (isdigit(a)){
@@ -78,8 +79,15 @@ class simulator{
 
 		while(getline(std::cin, currinst)){
 			if ((currinst[0] != '#') && (currinst.length() > 0)){
-				//Poorly thought out attempt at doing a regex
-				std::regex checkinstrs("(([[:w:]]*[[:alpha:]][[:w:]]*([[:blank:]]*):)?)([[:blank:]]*)((inc[[:blank:]+]([[:blank:]]*)r[[:d:]]+)|(decjz[[:blank:]+]([[:blank:]]*)r[[:d:]]+[[:blank:]+]([[:blank:]]*)[[:alpha:]][[:w:]]*))([[:blank:]]*)");
+				/*Poorly thought out attempt at doing a regex to check that the instructions are valid before I parse them
+
+				`Some people, when confronted with a problem, think "I know, I'll use regular expressions." Now they have two problems.`
+					- Jamie Zawinski
+
+				Felt particularly relevant once I got it to work.
+				*/ 
+
+				std::regex checkinstrs("(([[:blank:]]*[[:alpha:]][[:w:]]*([[:blank:]]*):)?)([[:blank:]]*)((inc[[:blank:]+]([[:blank:]]*)r[[:d:]]+)|(decjz[[:blank:]+]([[:blank:]]*)r[[:d:]]+[[:blank:]+]([[:blank:]]*)[[:alpha:]][[:w:]]*))([[:blank:]]*)");
 
 				if (!std::regex_match(currinst, checkinstrs)){
 					std::cout << "Instruction invalid\n";
@@ -147,7 +155,6 @@ class simulator{
 
 			if(trace){
 				printregs();
-				//std::cout << instructions[currinst].label << "-" << instructions[currinst].type << "-r" << instructions[currinst].targreg << "-" << instructions[currinst].jumplabel << '\n'; 
 			}
 
 			//Ensure that the register exists
@@ -157,7 +164,7 @@ class simulator{
 				registers[instructions[currinst].targreg] += 1; 
 				currinst += 1;
 			}
-			else{
+			else{ //decjz instruction
 				if (registers[instructions[currinst].targreg] == 0){
 					//Need to jump
 					if (instructions[currinst].jumplabel == "HALT"){
@@ -181,7 +188,7 @@ class simulator{
 
 					}
 				}
-				else{
+				else{ //Don't need to jump
 					registers[instructions[currinst].targreg] += -1;
 					currinst += 1;
 				}
