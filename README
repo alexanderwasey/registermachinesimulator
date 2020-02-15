@@ -3,5 +3,5 @@ Compiles on DICE with the following
 
 $ g++ -std=c++11 rmsim.cpp -o rmsim
 
-square.r run with 
+square.r run with (When a registers line has been added)
 $ cat square.r | ./rmsim 

@@ -1,5 +1,4 @@
-registers 99
-#registers 100
+registers 10
 #An initial copying of values for the repeated adding
 copyloop: decjz r0 haltloop         
 inc r1       
