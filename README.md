@@ -27,6 +27,8 @@ inc - increments a register
 
 decjz - If register=0 then jump to a label, else decrement the register 
 
+foo: - Label with name foo at start of a line
+
 Jump to HALT to halt the program
 
 square.reg contains an example of a program.  
