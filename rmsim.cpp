@@ -214,8 +214,6 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-
-	//Tried to get some regex working to do some checking, inevitably didn't work
 	if(!sim.getregs()){
 		return 1; 
 	}
