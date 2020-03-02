@@ -1,5 +1,7 @@
 # Basic register machine simulator
 
+#### Very quickly put together for some coursework
+
 ## Compilation Instructions
 
 Requires c++11
