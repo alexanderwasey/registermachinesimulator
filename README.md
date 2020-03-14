@@ -2,6 +2,8 @@
 
 #### Very quickly put together for some coursework
 
+[Register Machines on Wikipedia](]https://en.wikipedia.org/wiki/Register_machine)
+
 ## Compilation Instructions
 
 Requires c++11
